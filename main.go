@@ -17,6 +17,21 @@ type EchoResponse struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+type Team struct {
+	ID     int     `json:"id"`
+	Name   string  `json:"name"`
+	Score  int     `json:"score"`
+	Lat    float64 `json:"lat"`
+	Lng    float64 `json:"lng"`
+	Status string  `json:"status"`
+}
+
+var teams = []Team{
+	{1, "GreenSnake", 420, -6.2088, 106.8456, "online"},
+	{2, "RedFox", 350, -6.9147, 107.6098, "online"},
+	{3, "BlueTiger", 280, -7.2504, 112.7688, "under_attack"},
+}
+
 func main() {
 	// GET /ping → health check sederhana (JSON)
 	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +41,18 @@ func main() {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"status":"meriang","time":"%s"}`, time.Now().Format(time.RFC3339))
+	})
+
+	http.HandleFunc("/api/teams", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		json.NewEncoder(w).Encode(teams)
 	})
 
 	// GET /hello?name=Rolly → contoh baca query parameter
